@@ -2365,6 +2365,29 @@ window_copy_cmd_set_mark(struct window_copy_cmd_state *cs)
 }
 
 static enum window_copy_cmd_action
+window_copy_cmd_screen_enter(struct window_copy_cmd_state *cs)
+{
+	struct window_mode_entry *wme = cs->wme;
+	struct window_copy_mode_data *data = wme->data;
+
+	/*
+	 * screen-style behavior:
+	 *
+	 * first Enter -> begin selection
+	 * second Enter -> copy selection + exit
+	 */
+
+	if (!data->cursordrag && !data->lineflag && !data->rectflag) {
+		window_copy_start_selection(wme);
+		return (WINDOW_COPY_CMD_NOTHING);
+	}
+
+	window_copy_copy_selection_and_clear(wme);
+	window_pane_reset_mode(wme->wp);
+	return (WINDOW_COPY_CMD_NOTHING);
+}
+
+static enum window_copy_cmd_action
 window_copy_cmd_start_of_line(struct window_copy_cmd_state *cs)
 {
 	struct window_mode_entry	*wme = cs->wme;
@@ -3409,6 +3432,9 @@ static const struct {
 	  .flags = WINDOW_COPY_CMD_FLAG_READONLY,
 	  .clear = WINDOW_COPY_CMD_CLEAR_EMACS_ONLY,
 	  .f = window_copy_cmd_start_of_line
+	},
+	{ .command = "screen-enter",
+	  .f = window_copy_cmd_screen_enter
 	},
 	{ .command = "stop-selection",
 	  .args = { "", 0, 0, NULL },
