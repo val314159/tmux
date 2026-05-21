@@ -2382,10 +2382,7 @@ window_copy_cmd_screen_enter(struct window_copy_cmd_state *cs)
 		return (WINDOW_COPY_CMD_NOTHING);
 	}
 
-	//window_copy_copy_selection_and_clear(wme);
-	window_copy_cmd_copy_selection_and_cancel(wme);
-	window_pane_reset_mode(wme->wp);
-	return (WINDOW_COPY_CMD_NOTHING);
+	return window_copy_cmd_copy_selection_and_cancel(cs);
 }
 
 static enum window_copy_cmd_action
